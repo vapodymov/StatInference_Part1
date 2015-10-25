@@ -1,0 +1,94 @@
+---
+output: pdf_document
+---
+
+```{r global_options, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.width=8, fig.height=6, warning=FALSE, message=FALSE)
+```
+
+# Study of the Exponential Distribution 
+
+[Valerii Podymov](vapodymov@gmail.com)
+
+October 20, 2015
+
+## Overview
+
+The goal of this project is to investigate the exponential distribution and compare it with the Central Limit Theorem. The exponential distribution will be simulated in R with rexp(n, lambda) where lambda is the rate parameter. The parameter lambda will be set to 0.2 for all of the simulations. The distribution of averages of 40 exponentials will be investigated in a thousand simulations.
+
+## Simulations
+
+```{r, results = 'markup', warning = FALSE, message = TRUE}
+# Define constants
+lambda <- 0.2   # lambda parameter of rthe exponential distribution
+nexps <- 40     # the number of exponetials
+nsims <- 1000   # the number of simulations
+
+# Set the seed to provide reproducibility of results
+set.seed(11111)
+
+# Simulate the distribution of 1000 averages of 40 random exponentials
+mns = NULL
+for (i in 1 : nsims) 
+    mns = c(mns, mean(rexp(nexps, rate = lambda)))
+```
+
+## Comparison of the Theoretical Mean with the Sample Mean
+
+The theoretical mean $\mu$ of the averages of 40 exponential distributions of rate $\lambda$ is $\mu= \frac{1}{\lambda}$. And in our example its value is
+
+```{r}
+mu <- 1/lambda
+mu
+```
+
+The sample value of the mean is
+
+```{r}
+mean(mns)
+```
+And it is very close to the theoretical value.
+
+## Comparison of the Theoretical Variance with the Sample Variance
+
+The standard error $s$ of the mean of $n$ exponential distributions of rate $\lambda$ is $s = \frac{\sigma}{\sqrt{n}} = \frac{1/\lambda}{\sqrt{n}}$ 
+
+And consequently the variance $Var$ of the mean is $Var = s^2$ 
+
+```{r}
+std_err <- 1/lambda/sqrt(nexps)
+Var <- std_err^2
+Var
+```
+
+The sample value of the variance is 
+
+```{r}
+var(mns)
+```
+
+And it is also quite close to the theoretical value. 
+
+## Results
+
+The Central Limit Theorem states that the $averages$ of iid samples are approximately normal with distributions centered at the population mean with standard deviation equal to the standard error of the mean. 
+
+```{r echo=FALSE}
+# Plot the results
+hist(mns, freq = FALSE, main = "Distribution of averages of 40 exponentials",
+     xlab = "means")
+curve(dnorm(x, mean = mu, sd = std_err), col = 2, lty = 1, lwd = 2, add = TRUE)
+```
+
+As we can see from the histogram above, the shape of the distribution of the averages of 40 exponentials is approximately normal. The density curve of the normal distribution $N(\mu = `r mu`, \frac{\sigma^2}{n} = `r Var`)$ is shown by red color. 
+
+For a contrast, the distribution of 1000 random exponentials with $\lambda = 0.2$ is shown on the histogram below.
+
+```{r echo=FALSE}
+hist(rexp(1000, rate = 0.2), freq = FALSE, 
+    main = "Distribution of 1000 random exponentials",
+    xlab = "x")
+```
+
+As we can see, the last distribution is far from Gaussian.
